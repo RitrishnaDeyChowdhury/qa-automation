@@ -1,34 +1,86 @@
-# Inspectra AI QA Automation SaaS
+# Inspectra — AI Website QA Automation SaaS
 
-Production-minded MVP foundation for an AI-powered website QA platform built with Next.js App Router, TypeScript, Tailwind CSS, Playwright, Gemini analysis, local screenshot storage, and PDF report generation.
+![Inspectra QA Dashboard](./README-screenshot.png)
 
-## Features
+> A modern SaaS-style website auditor that uses Playwright to crawl and test internal pages, Gemini to analyze findings, and PDF generation to deliver professional audit reports.
 
-- Public URL validation with SSRF protection
-- Async in-memory scan jobs with live progress polling
-- Internal crawler for homepage, navbar, footer, and same-origin links
-- Playwright QA checks for console errors, runtime errors, failed requests, broken links, broken images, SEO metadata, accessibility, UI responsiveness, and performance signals
-- Screenshot capture for audited pages and issue evidence
-- AI analysis layer powered by Gemini
-- Professional PDF report with severity summary, detailed issues, recommendations, and screenshots
-- Modern responsive SaaS UI with dark mode, live logs, report cards, and screenshot modal
-- Placeholder Telegram notifier hook for future bot integration
-- No database required
+## 🚀 What this project does
 
-## Getting Started
+Inspectra automates website QA by:
+
+- crawling same-origin pages from a public URL
+- running Playwright-powered browser audits
+- capturing screenshots for evidence
+- summarizing issues with AI analysis
+- exporting a PDF report for review and sharing
+
+## ✨ Core roles and technologies
+
+- `Next.js` — UI, API routes, and app hosting
+- `TypeScript` — typed application logic and safer development
+- `Tailwind CSS` — responsive SaaS-style interface
+- `Playwright` — browser automation, page audits, and screenshot capture
+- `Gemini` — AI layer for higher-level analysis and recommendations
+- `PDF generation` — report output stored locally under `/reports`
+- local `screenshots` + `reports` storage for fast MVP behavior
+
+## 🔧 Features
+
+- Public URL validation and SSRF-safe scanning
+- Asynchronous job lifecycle with live polling
+- Internal crawl of homepage, navbar, footer, and same-origin links
+- Playwright checks for:
+  - console and runtime errors
+  - failed requests and broken links
+  - broken images
+  - SEO metadata quality
+  - accessibility issues
+  - responsiveness and UI behavior
+  - page performance signals
+- screenshot evidence for audited pages
+- AI-generated recommendations and summaries
+- downloadable PDF audit report
+- clean dashboard with live logs and issue preview cards
+
+## 🧩 Project structure
+
+```text
+/app
+  ├─ page.tsx                       # Main dashboard page
+/components
+  ├─ qa-dashboard.tsx               # UI scanning dashboard
+  ├─ screenshot-modal.tsx           # Screenshot preview modal
+  ├─ theme-toggle.tsx               # Dark / light mode toggle
+/lib
+  ├─ config.ts                      # Application configuration and env parsing
+/services
+  ├─ browser-service.ts             # Playwright browser lifecycle
+  ├─ crawler-service.ts             # Same-origin page crawler
+  ├─ qa-check-service.ts            # QA rule checks and issue detection
+  ├─ screenshot-service.ts          # Local screenshot capture and storage
+  ├─ report-generation-service.ts   # PDF/report creation
+  ├─ ai-analysis-service.ts         # Gemini AI analysis boundary
+  ├─ job-store.ts                   # In-memory scan job state
+  ├─ telegram-integration.ts        # Future notification hook
+/types
+  ├─ qa.ts                          # QA job and issue type definitions
+/reports                            # Generated audit reports
+/screenshots                        # Captured page evidence
+/temp                               # Temporary runtime artifacts
+```
+
+## ⚙️ Installation
 
 ```bash
 npm install
 npx playwright install chromium
-cp .env.example .env
-npm run dev
 ```
 
-Open `http://localhost:3002`.
+## 🌱 Environment configuration
 
-## Environment
+Create a `.env` file with these values:
 
-```txt
+```env
 GEMINI_API_KEY=your_gemini_key
 AI_PROVIDER=gemini
 QA_MAX_PAGES=8
@@ -37,69 +89,87 @@ QA_NAVIGATION_TIMEOUT_MS=20000
 QA_JOB_TTL_MINUTES=120
 ```
 
-If no Gemini key is configured, the scan still runs and produces a report with rule-based recommendations.
+### Recommended settings
 
-## API
+- `GEMINI_API_KEY` — required for AI-driven summaries
+- `AI_PROVIDER` — `gemini` (current supported provider)
+- `QA_MAX_PAGES` — max pages to audit per scan
+- `QA_MAX_DEPTH` — crawl depth from the start page
+- `QA_NAVIGATION_TIMEOUT_MS` — Playwright page navigation timeout
+- `QA_JOB_TTL_MINUTES` — how long completed jobs stay in memory
 
-### `POST /api/qa/start`
+## ▶️ Run locally
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3002` and use the dashboard to start a QA scan.
+
+## 🧪 Usage flow
+
+1. Enter a public website URL in the dashboard.
+2. Click **Start QA**.
+3. The backend enqueues a scan job and returns a `jobId`.
+4. The browser service crawls same-origin pages and runs Playwright checks.
+5. Screenshots are captured and stored in `/screenshots`.
+6. AI analysis generates recommendations and report narrative.
+7. A PDF report is produced in `/reports`.
+8. Download the report from the UI when the scan completes.
+
+## 📡 API reference
+
+### Start a scan
+
+`POST /api/qa/start`
+
+Request body:
 
 ```json
 { "url": "https://example.com" }
 ```
 
-Returns:
+Response:
 
 ```json
 { "jobId": "qa_...", "status": "queued" }
 ```
 
-### `GET /api/qa/status?jobId=qa_...`
+### Poll scan status
 
-Returns the in-memory job, progress logs, and report metadata when complete.
+`GET /api/qa/status?jobId=qa_...`
 
-### `GET /api/qa/report?jobId=qa_...`
+Returns live job progress, logs, and report metadata.
 
-Downloads the generated PDF report.
+### Download report
 
-## Example QA Flow
+`GET /api/qa/report?jobId=qa_...`
 
-1. Enter `https://example.com`.
-2. Click **Start QA**.
-3. The crawler discovers same-origin links up to `QA_MAX_DEPTH`.
-4. Playwright audits each page and stores screenshots in `/screenshots`.
-5. Gemini or OpenAI receives compact scan evidence and optional screenshot context.
-6. The PDF report is written to `/reports`.
-7. The UI exposes issue cards, screenshot previews, live logs, and the download button.
+Downloads the generated PDF audit report.
 
-## Architecture
+## 🛠️ What each service does
 
-```txt
-/app
-/components
-/lib
-/services
-/utils
-/types
-/reports
-/screenshots
-/temp
-```
+- `browser-service.ts` — launches Chromium and manages browser contexts
+- `crawler-service.ts` — discovers same-origin internal pages
+- `qa-check-service.ts` — analyzes pages for issues and rules
+- `screenshot-service.ts` — captures and stores page screenshots
+- `ai-analysis-service.ts` — enriches results with Gemini AI
+- `report-generation-service.ts` — builds the final report document
+- `job-store.ts` — holds temporary job data for polling
 
-Core services:
+## 📦 Production notes
 
-- `browser-service`: Playwright lifecycle
-- `crawler-service`: same-origin crawl queue
-- `qa-check-service`: technical, accessibility, UI/UX, SEO, performance checks
-- `screenshot-service`: organized local screenshots
-- `ai-analysis-service`: Gemini provider behind an AI analysis service boundary
-- `report-generation-service`: PDF and JSON report output
-- `job-store`: temporary in-memory job state
-- `telegram-integration`: future bot notification contract
+- Replace the in-memory job store with Redis or a database for scaling
+- Use cloud storage for screenshots and report files
+- Add authentication and team support
+- Run scans in isolated containers for stronger security
+- Add CI/scheduled scan automation using the same service boundary
 
-## Notes For Production Hardening
+## 💡 Helpful tips
 
-- Replace the in-memory job store with Redis or a database-backed queue before multi-instance deploys.
-- Move screenshots and reports to cloud object storage for durable history.
-- Add authenticated users, team ownership, and per-user rate limits.
-- Run scans in isolated workers or containers for stronger browser sandboxing.
-- Add CI-triggered scans and scheduled recurring scans using the existing service boundary.
+- If scanning fails because browsers are missing, run:
+  ```bash
+  npx playwright install chromium
+  ```
+- Keep `QA_MAX_PAGES` and `QA_MAX_DEPTH` low for fast scans
+- Use a publicly reachable URL with same-origin pages for best results
