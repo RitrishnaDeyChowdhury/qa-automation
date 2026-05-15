@@ -1,6 +1,6 @@
 # Inspectra — AI Website QA Automation SaaS
 
-![Inspectra QA Dashboard](./README-screenshot.png)
+![Inspectra QA Dashboard](README-screenshot.png)
 
 > A modern SaaS-style website auditor that uses Playwright to crawl and test internal pages, Gemini to analyze findings, and PDF generation to deliver professional audit reports.
 
