@@ -1,0 +1,8 @@
+.next
+node_modules
+.env
+reports/*.pdf
+reports/*.json
+screenshots/*.png
+temp/*
+!.gitkeep
